@@ -1,53 +1,33 @@
-from pydantic import BaseModel, EmailStr
-from datetime import datetime
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
-from app.models.user import UserRole
+from enum import Enum
 
-# Base
-class UserBase(BaseModel):
+class UserRole(str, Enum):
+    ADMIN = "admin"
+    MANAGER = "manager"
+    ENGINEER = "engineer"
+    READER = "reader"
+
+class UserCreate(BaseModel):
     email: EmailStr
-    first_name: str
-    last_name: str
-    role: UserRole
-
-class UserCreate(UserBase):
-    password: str
-
-    class Config:
-        from_attributes = True
+    password: str = Field(..., min_length=6)
+    name: str = Field(..., min_length=1, max_length=100)
+    role: UserRole = UserRole.ENGINEER
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
+    password: Optional[str] = Field(None, min_length=6)
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
     role: Optional[UserRole] = None
 
-    class Config:
-        from_attributes = True
-
-class User(UserBase):
+class UserDelete(BaseModel):
     id: int
-    created_at: datetime
-    last_login: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
-
-
-class UserGet(BaseModel):
+class UserGetting(BaseModel):
     id: int
     email: EmailStr
-    first_name: str
-    last_name: str
+    name: str
     role: UserRole
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-class UserDelete(BaseModel):
-    message: str = "User deleted successfully"
-    user_id: int
 
     class Config:
         from_attributes = True

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -13,11 +13,9 @@ class Project(Base):
     address = Column(String)
     start_date = Column(DateTime(timezone=True))
     end_date = Column(DateTime(timezone=True))
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    is_active = Column(Boolean, default=True)
     
-    # Foreign keys
     manager_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    # Relationships
     manager = relationship("User", back_populates="managed_projects")
-    defects = relationship("Defect", back_populates="project", cascade="all, delete-orphan")
+    defects = relationship("Defect", back_populates="project")

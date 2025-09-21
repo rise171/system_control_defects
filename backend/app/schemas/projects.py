@@ -1,53 +1,37 @@
-from pydantic import BaseModel
-from datetime import datetime
+from pydantic import BaseModel, Field
 from typing import Optional
-from app.schemas.user import User
+from datetime import datetime
 
-class ProjectBase(BaseModel):
-    name: str
+class ProjectCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
     description: Optional[str] = None
     address: Optional[str] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
-
-class ProjectCreate(ProjectBase):
+    is_active: bool = True
     manager_id: int
-
-    class Config:
-        from_attributes = True
 
 class ProjectUpdate(BaseModel):
-    name: Optional[str] = None
+    name: Optional[str] = Field(None, min_length=1, max_length=200)
     description: Optional[str] = None
     address: Optional[str] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
+    is_active: Optional[bool] = None
     manager_id: Optional[int] = None
 
-    class Config:
-        from_attributes = True
-        
-class ProjectList(BaseModel):
+class ProjectDelete(BaseModel):
+    id: int
+
+class ProjectGetting(BaseModel):
     id: int
     name: str
-    address: Optional[str] = None
-    start_date: Optional[datetime] = None
-    end_date: Optional[datetime] = None
-    created_at: datetime
+    description: Optional[str]
+    address: Optional[str]
+    start_date: Optional[datetime]
+    end_date: Optional[datetime]
+    is_active: bool
     manager_id: int
-
-    class Config:
-        from_attributes = True
-
-# Delete response
-class ProjectDelete(BaseModel):
-    message: str = "Project deleted successfully"
-    project_id: int
-
-class Project(ProjectBase):
-    id: int
-    created_at: datetime
-    manager: User
 
     class Config:
         from_attributes = True

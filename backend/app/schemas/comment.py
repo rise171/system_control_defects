@@ -1,31 +1,24 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Optional
 from datetime import datetime
-from typing import Optional, List
-from app.schemas.user import User
-from app.schemas.attachment import Attachment
 
-class CommentBase(BaseModel):
-    text: str
-
-class CommentCreate(CommentBase):
+class CommentCreate(BaseModel):
+    text: str = Field(..., min_length=1)
     defect_id: int
     author_id: int
 
-    class Config:
-        from_attributes = True
+class CommentUpdate(BaseModel):
+    text: Optional[str] = Field(None, min_length=1)
 
 class CommentDelete(BaseModel):
-    message: str = "Comment deleted successfully"
-    comment_id: int
-
-    class Config:
-        from_attributes = True        
-
-class Comment(CommentBase):
     id: int
+
+class CommentGetting(BaseModel):
+    id: int
+    text: str
     created_at: datetime
-    author: User
-    attachments: List[Attachment] = []
+    defect_id: int
+    author_id: int
 
     class Config:
         from_attributes = True

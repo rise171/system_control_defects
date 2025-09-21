@@ -11,11 +11,9 @@ class Comment(Base):
     text = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # Foreign keys
     defect_id = Column(Integer, ForeignKey("defects.id"), nullable=False)
     author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    # Relationships
     defect = relationship("Defect", back_populates="comments")
     author = relationship("User", back_populates="comments")
     attachments = relationship("Attachment", back_populates="comment", cascade="all, delete-orphan")

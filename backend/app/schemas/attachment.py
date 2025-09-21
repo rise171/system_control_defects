@@ -1,30 +1,22 @@
-from pydantic import BaseModel
-from datetime import datetime
+from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import datetime
 
-class AttachmentBase(BaseModel):
-    filename: str
-    content_type: Optional[str] = None
+class DefectAttachmentCreate(BaseModel):
+    file_path: str = Field(..., min_length=1)
+    defect_id: int
 
-class AttachmentCreate(AttachmentBase):
-    filepath: str
-    defect_id: Optional[int] = None
-    comment_id: Optional[int] = None
+class DefectAttachmentUpdate(BaseModel):
+    file_path: Optional[str] = Field(None, min_length=1)
 
-    class Config:
-        from_attributes = True
-
-class Attachment(AttachmentBase):
+class DefectAttachmentDelete(BaseModel):
     id: int
-    filepath: str
-    uploaded_at: datetime
 
-    class Config:
-        from_attributes = True
-
-class AttachmentDelete(BaseModel):
-    message: str = "Attachment deleted successfully"
-    attachment_id: int
+class DefectAttachmentGetting(BaseModel):
+    id: int
+    file_path: str
+    upload_date: datetime
+    defect_id: int
 
     class Config:
         from_attributes = True

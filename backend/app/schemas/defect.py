@@ -1,74 +1,49 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Optional
 from datetime import datetime
-from typing import Optional, List
-from app.models.defects import DefectStatus, DefectPriority
-from app.schemas.user import User
-from app.schemas.projects import Project
-from app.schemas.comment import Comment
-from app.schemas.attachment import Attachment
+from enum import Enum
 
+class DefectStatus(str, Enum):
+    NEW = "new"
+    IN_PROGRESS = "in_progress"
+    UNDER_REVIEW = "under_review"
+    CLOSED = "closed"
+    CANCELLED = "cancelled"
 
-class DefectBase(BaseModel):
-    title: str
+class DefectPriority(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+class DefectCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=500)
     description: Optional[str] = None
     status: DefectStatus = DefectStatus.NEW
     priority: DefectPriority = DefectPriority.MEDIUM
-    due_date: Optional[datetime] = None
-
-class DefectCreate(DefectBase):
     project_id: int
-    created_by_id: int
     assigned_to_id: Optional[int] = None
 
-    class Config:
-        from_attributes = True
-
 class DefectUpdate(BaseModel):
-    title: Optional[str] = None
+    title: Optional[str] = Field(None, min_length=1, max_length=500)
     description: Optional[str] = None
     status: Optional[DefectStatus] = None
     priority: Optional[DefectPriority] = None
-    due_date: Optional[datetime] = None
     assigned_to_id: Optional[int] = None
-
-    class Config:
-        from_attributes = True
-
-class Defect(DefectBase):
-    id: int
-    created_at: datetime
-    updated_at: Optional[datetime] = None
-    project: Project
-    creator: User
-    assignee: Optional[User] = None
-    comments: List[Comment] = []
-    attachments: List[Attachment] = []
-
-    class Config:
-        from_attributes = True
-
-class DefectList(BaseModel):
-    id: int
-    title: str
-    status: DefectStatus
-    priority: DefectPriority
-    due_date: Optional[datetime] = None
-    created_at: datetime
-    project_id: int
-    assigned_to_id: Optional[int] = None
-
-    class Config:
-        from_attributes = True
+    project_id: Optional[int] = None
 
 class DefectDelete(BaseModel):
-    message: str = "Defect deleted successfully"
-    defect_id: int
+    id: int
+
+class DefectGetting(BaseModel):
+    id: int
+    title: str
+    description: Optional[str]
+    status: DefectStatus
+    priority: DefectPriority
+    project_id: int
+    created_by_id: int
+    assigned_to_id: Optional[int]
 
     class Config:
         from_attributes = True
-
-class DefectFilter(BaseModel):
-    project_id: Optional[int] = None
-    status: Optional[DefectStatus] = None
-    priority: Optional[DefectPriority] = None
-    assigned_to_id: Optional[int] = None
