@@ -3,8 +3,8 @@ from fastapi import HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.settings import get_session
-from app.repository.defect_attachment_repos import DefectAttachmentRepos
-from app.schemas.defect_attachment_schemas import DefectAttachmentCreate, DefectAttachmentUpdate, DefectAttachmentGetting
+from app.repository.attachement_repos import DefectAttachmentRepos
+from app.schemas.attachment import DefectAttachmentCreate, DefectAttachmentUpdate, DefectAttachmentGetting
 
 class DefectAttachmentService:
 
