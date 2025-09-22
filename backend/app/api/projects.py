@@ -7,7 +7,7 @@ from app.services.project_services import ProjectService
 from app.schemas.projects import ProjectCreate, ProjectUpdate, ProjectGetting
 from app.core.security import get_current_user
 
-router = APIRouter(prefix="/projects", tags=["Projects"])
+p_router = APIRouter(prefix="/projects", tags=["Projects"])
 
 @router.get("/", response_model=List[ProjectGetting])
 async def get_all_projects(

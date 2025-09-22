@@ -7,7 +7,7 @@ from app.services.defects_services import DefectService
 from app.schemas.defect import DefectCreate, DefectUpdate, DefectGetting
 from app.core.security import get_current_user
 
-router = APIRouter(prefix="/defects", tags=["Defects"])
+d_router = APIRouter(prefix="/defects", tags=["Defects"])
 
 @router.get("/", response_model=List[DefectGetting])
 async def get_all_defects(

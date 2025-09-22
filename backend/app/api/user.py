@@ -7,7 +7,7 @@ from app.services.user_services import UserService
 from app.schemas.user import UserCreate, UserUpdate, UserGetting
 from app.core.security import get_current_user
 
-router = APIRouter(prefix="/users", tags=["Users"])
+user_router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.get("/", response_model=List[UserGetting])
 async def get_all_users(

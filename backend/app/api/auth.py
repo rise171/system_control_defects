@@ -7,7 +7,7 @@ from app.services.auth_services import AuthService
 from app.schemas.user import UserCreate, UserGetting
 from app.core.security import get_current_user
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register", response_model=UserGetting, status_code=status.HTTP_201_CREATED)
 async def register_user(

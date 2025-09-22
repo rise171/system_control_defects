@@ -7,7 +7,7 @@ from app.services.comment_services import CommentService
 from app.schemas.comment import CommentCreate, CommentUpdate, CommentGetting
 from app.core.security import get_current_user
 
-router = APIRouter(prefix="/comments", tags=["Comments"])
+c_router = APIRouter(prefix="/comments", tags=["Comments"])
 
 @router.get("/", response_model=List[CommentGetting])
 async def get_all_comments(

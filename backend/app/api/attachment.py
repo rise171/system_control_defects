@@ -7,7 +7,7 @@ from app.services.attachment_services import DefectAttachmentService
 from app.schemas.attachment import DefectAttachmentCreate, DefectAttachmentUpdate, DefectAttachmentGetting
 from app.core.security import get_current_user
 
-router = APIRouter(prefix="/attachments", tags=["Attachments"])
+a_router = APIRouter(prefix="/attachments", tags=["Attachments"])
 
 @router.get("/", response_model=List[DefectAttachmentGetting])
 async def get_all_attachments(
