@@ -9,7 +9,7 @@ from app.core.security import get_current_user
 
 user_router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.get("/", response_model=List[UserGetting])
+@user_router.get("/", response_model=List[UserGetting])
 async def get_all_users(
     limit: int = 100,
     offset: int = 0,
@@ -18,7 +18,7 @@ async def get_all_users(
 ):
     return await UserService.get_all_users(limit, offset, session)
 
-@router.get("/{user_id}", response_model=UserGetting)
+@user_router.get("/{user_id}", response_model=UserGetting)
 async def get_user_by_id(
     user_id: int,
     session: AsyncSession = Depends(get_session),
@@ -26,7 +26,7 @@ async def get_user_by_id(
 ):
     return await UserService.get_user_by_id(user_id, session)
 
-@router.post("/", response_model=UserGetting, status_code=status.HTTP_201_CREATED)
+@user_router.post("/", response_model=UserGetting, status_code=status.HTTP_201_CREATED)
 async def create_user(
     user_data: UserCreate,
     session: AsyncSession = Depends(get_session),
@@ -34,7 +34,7 @@ async def create_user(
 ):
     return await UserService.create_user(user_data, session)
 
-@router.put("/{user_id}", response_model=UserGetting)
+@user_router.put("/{user_id}", response_model=UserGetting)
 async def update_user(
     user_id: int,
     user_data: UserUpdate,
@@ -43,7 +43,7 @@ async def update_user(
 ):
     return await UserService.update_user(user_id, user_data, session)
 
-@router.delete("/{user_id}", status_code=status.HTTP_200_OK)
+@user_router.delete("/{user_id}", status_code=status.HTTP_200_OK)
 async def delete_user(
     user_id: int,
     session: AsyncSession = Depends(get_session),

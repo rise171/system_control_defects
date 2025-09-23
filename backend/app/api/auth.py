@@ -9,14 +9,14 @@ from app.core.security import get_current_user
 
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-@router.post("/register", response_model=UserGetting, status_code=status.HTTP_201_CREATED)
+@auth_router.post("/register", response_model=UserGetting, status_code=status.HTTP_201_CREATED)
 async def register_user(
     user_data: UserCreate,
     session: AsyncSession = Depends(get_session)
 ):
     return await AuthService.register_user(user_data, session)
 
-@router.post("/login")
+@auth_router.post("/login")
 async def login_user(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = Depends(get_session)
@@ -25,7 +25,7 @@ async def login_user(
     login_data = LoginRequest(email=form_data.username, password=form_data.password)
     return await AuthService.login_user(login_data, session)
 
-@router.get("/me", response_model=UserGetting)
+@auth_router.get("/me", response_model=UserGetting)
 async def get_current_user_info(
     current_user: UserGetting = Depends(get_current_user)
 ):

@@ -16,4 +16,4 @@ class Comment(Base):
 
     defect = relationship("Defect", back_populates="comments")
     author = relationship("User", back_populates="comments")
-    attachments = relationship("Attachment", back_populates="comment", cascade="all, delete-orphan")
+    attachments = relationship("DefectAttachment", back_populates="comment", cascade="all, delete-orphan")

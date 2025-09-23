@@ -9,7 +9,7 @@ from app.core.security import get_current_user
 
 c_router = APIRouter(prefix="/comments", tags=["Comments"])
 
-@router.get("/", response_model=List[CommentGetting])
+@c_router.get("/", response_model=List[CommentGetting])
 async def get_all_comments(
     limit: int = 100,
     offset: int = 0,
@@ -18,7 +18,7 @@ async def get_all_comments(
 ):
     return await CommentService.get_all_comments(limit, offset, session)
 
-@router.get("/{comment_id}", response_model=CommentGetting)
+@c_router.get("/{comment_id}", response_model=CommentGetting)
 async def get_comment_by_id(
     comment_id: int,
     session: AsyncSession = Depends(get_session),
@@ -26,7 +26,7 @@ async def get_comment_by_id(
 ):
     return await CommentService.get_comment_by_id(comment_id, session)
 
-@router.get("/defect/{defect_id}", response_model=List[CommentGetting])
+@c_router.get("/defect/{defect_id}", response_model=List[CommentGetting])
 async def get_comments_by_defect(
     defect_id: int,
     session: AsyncSession = Depends(get_session),
@@ -34,7 +34,7 @@ async def get_comments_by_defect(
 ):
     return await CommentService.get_comments_by_defect(defect_id, session)
 
-@router.get("/user/{user_id}", response_model=List[CommentGetting])
+@c_router.get("/user/{user_id}", response_model=List[CommentGetting])
 async def get_comments_by_author(
     user_id: int,
     session: AsyncSession = Depends(get_session),
@@ -42,7 +42,7 @@ async def get_comments_by_author(
 ):
     return await CommentService.get_comments_by_author(user_id, session)
 
-@router.post("/", response_model=CommentGetting, status_code=status.HTTP_201_CREATED)
+@c_router.post("/", response_model=CommentGetting, status_code=status.HTTP_201_CREATED)
 async def create_comment(
     comment_data: CommentCreate,
     session: AsyncSession = Depends(get_session),
@@ -50,7 +50,7 @@ async def create_comment(
 ):
     return await CommentService.create_comment(comment_data, session)
 
-@router.put("/{comment_id}", response_model=CommentGetting)
+@c_router.put("/{comment_id}", response_model=CommentGetting)
 async def update_comment(
     comment_id: int,
     comment_data: CommentUpdate,
@@ -59,7 +59,7 @@ async def update_comment(
 ):
     return await CommentService.update_comment(comment_id, comment_data, session)
 
-@router.delete("/{comment_id}", status_code=status.HTTP_200_OK)
+@c_router.delete("/{comment_id}", status_code=status.HTTP_200_OK)
 async def delete_comment(
     comment_id: int,
     session: AsyncSession = Depends(get_session),

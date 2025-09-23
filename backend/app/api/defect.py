@@ -9,7 +9,7 @@ from app.core.security import get_current_user
 
 d_router = APIRouter(prefix="/defects", tags=["Defects"])
 
-@router.get("/", response_model=List[DefectGetting])
+@d_router.get("/", response_model=List[DefectGetting])
 async def get_all_defects(
     limit: int = 100,
     offset: int = 0,
@@ -18,7 +18,7 @@ async def get_all_defects(
 ):
     return await DefectService.get_all_defects(limit, offset, session)
 
-@router.get("/{defect_id}", response_model=DefectGetting)
+@d_router.get("/{defect_id}", response_model=DefectGetting)
 async def get_defect_by_id(
     defect_id: int,
     session: AsyncSession = Depends(get_session),
@@ -26,7 +26,7 @@ async def get_defect_by_id(
 ):
     return await DefectService.get_defect_by_id(defect_id, session)
 
-@router.get("/project/{project_id}", response_model=List[DefectGetting])
+@d_router.get("/project/{project_id}", response_model=List[DefectGetting])
 async def get_defects_by_project(
     project_id: int,
     session: AsyncSession = Depends(get_session),
@@ -34,7 +34,7 @@ async def get_defects_by_project(
 ):
     return await DefectService.get_defects_by_project(project_id, session)
 
-@router.get("/user/{user_id}", response_model=List[DefectGetting])
+@d_router.get("/user/{user_id}", response_model=List[DefectGetting])
 async def get_defects_by_assignee(
     user_id: int,
     session: AsyncSession = Depends(get_session),
@@ -42,7 +42,7 @@ async def get_defects_by_assignee(
 ):
     return await DefectService.get_defects_by_assignee(user_id, session)
 
-@router.post("/", response_model=DefectGetting, status_code=status.HTTP_201_CREATED)
+@d_router.post("/", response_model=DefectGetting, status_code=status.HTTP_201_CREATED)
 async def create_defect(
     defect_data: DefectCreate,
     session: AsyncSession = Depends(get_session),
@@ -50,7 +50,7 @@ async def create_defect(
 ):
     return await DefectService.create_defect(defect_data, session)
 
-@router.put("/{defect_id}", response_model=DefectGetting)
+@d_router.put("/{defect_id}", response_model=DefectGetting)
 async def update_defect(
     defect_id: int,
     defect_data: DefectUpdate,
@@ -59,7 +59,7 @@ async def update_defect(
 ):
     return await DefectService.update_defect(defect_id, defect_data, session)
 
-@router.delete("/{defect_id}", status_code=status.HTTP_200_OK)
+@d_router.delete("/{defect_id}", status_code=status.HTTP_200_OK)
 async def delete_defect(
     defect_id: int,
     session: AsyncSession = Depends(get_session),

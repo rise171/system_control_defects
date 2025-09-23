@@ -1,7 +1,7 @@
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
-engine = create_async_engine("sqlite+aiosqlite:///project.db", echo=True)
+engine = create_async_engine("sqlite+aiosqlite:///project_spo.db", echo=True)
 make_session = async_sessionmaker(engine, expire_on_commit=False)
 
 async def get_session():

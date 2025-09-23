@@ -9,7 +9,7 @@ from app.core.security import get_current_user
 
 p_router = APIRouter(prefix="/projects", tags=["Projects"])
 
-@router.get("/", response_model=List[ProjectGetting])
+@p_router.get("/", response_model=List[ProjectGetting])
 async def get_all_projects(
     limit: int = 100,
     offset: int = 0,
@@ -18,7 +18,7 @@ async def get_all_projects(
 ):
     return await ProjectService.get_all_projects(limit, offset, session)
 
-@router.get("/{project_id}", response_model=ProjectGetting)
+@p_router.get("/{project_id}", response_model=ProjectGetting)
 async def get_project_by_id(
     project_id: int,
     session: AsyncSession = Depends(get_session),
@@ -26,7 +26,7 @@ async def get_project_by_id(
 ):
     return await ProjectService.get_project_by_id(project_id, session)
 
-@router.post("/", response_model=ProjectGetting, status_code=status.HTTP_201_CREATED)
+@p_router.post("/", response_model=ProjectGetting, status_code=status.HTTP_201_CREATED)
 async def create_project(
     project_data: ProjectCreate,
     session: AsyncSession = Depends(get_session),
@@ -34,7 +34,7 @@ async def create_project(
 ):
     return await ProjectService.create_project(project_data, session)
 
-@router.put("/{project_id}", response_model=ProjectGetting)
+@p_router.put("/{project_id}", response_model=ProjectGetting)
 async def update_project(
     project_id: int,
     project_data: ProjectUpdate,
@@ -43,7 +43,7 @@ async def update_project(
 ):
     return await ProjectService.update_project(project_id, project_data, session)
 
-@router.delete("/{project_id}", status_code=status.HTTP_200_OK)
+@p_router.delete("/{project_id}", status_code=status.HTTP_200_OK)
 async def delete_project(
     project_id: int,
     session: AsyncSession = Depends(get_session),

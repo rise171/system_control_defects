@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from models import User
+from app.models.user import User
 from app.core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from app.database.settings import get_session
 

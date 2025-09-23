@@ -35,4 +35,4 @@ class Defect(Base):
     creator = relationship("User", back_populates="created_defects", foreign_keys=[created_by_id])
     assignee = relationship("User", back_populates="assigned_defects", foreign_keys=[assigned_to_id])
     comments = relationship("Comment", back_populates="defect")
-    attachments = relationship("Attachment", back_populates="defect")
+    attachments = relationship("DefectAttachment", back_populates="defect")

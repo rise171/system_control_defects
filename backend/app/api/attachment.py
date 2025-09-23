@@ -9,7 +9,7 @@ from app.core.security import get_current_user
 
 a_router = APIRouter(prefix="/attachments", tags=["Attachments"])
 
-@router.get("/", response_model=List[DefectAttachmentGetting])
+@a_router.get("/", response_model=List[DefectAttachmentGetting])
 async def get_all_attachments(
     limit: int = 100,
     offset: int = 0,
@@ -18,7 +18,7 @@ async def get_all_attachments(
 ):
     return await DefectAttachmentService.get_all_attachments(limit, offset, session)
 
-@router.get("/{attachment_id}", response_model=DefectAttachmentGetting)
+@a_router.get("/{attachment_id}", response_model=DefectAttachmentGetting)
 async def get_attachment_by_id(
     attachment_id: int,
     session: AsyncSession = Depends(get_session),
@@ -26,7 +26,7 @@ async def get_attachment_by_id(
 ):
     return await DefectAttachmentService.get_attachment_by_id(attachment_id, session)
 
-@router.get("/defect/{defect_id}", response_model=List[DefectAttachmentGetting])
+@a_router.get("/defect/{defect_id}", response_model=List[DefectAttachmentGetting])
 async def get_attachments_by_defect(
     defect_id: int,
     session: AsyncSession = Depends(get_session),
@@ -34,7 +34,7 @@ async def get_attachments_by_defect(
 ):
     return await DefectAttachmentService.get_attachments_by_defect(defect_id, session)
 
-@router.post("/", response_model=DefectAttachmentGetting, status_code=status.HTTP_201_CREATED)
+@a_router.post("/", response_model=DefectAttachmentGetting, status_code=status.HTTP_201_CREATED)
 async def create_attachment(
     attachment_data: DefectAttachmentCreate,
     session: AsyncSession = Depends(get_session),
@@ -42,7 +42,7 @@ async def create_attachment(
 ):
     return await DefectAttachmentService.create_attachment(attachment_data, session)
 
-@router.put("/{attachment_id}", response_model=DefectAttachmentGetting)
+@a_router.put("/{attachment_id}", response_model=DefectAttachmentGetting)
 async def update_attachment(
     attachment_id: int,
     attachment_data: DefectAttachmentUpdate,
@@ -51,7 +51,7 @@ async def update_attachment(
 ):
     return await DefectAttachmentService.update_attachment(attachment_id, attachment_data, session)
 
-@router.delete("/{attachment_id}", status_code=status.HTTP_200_OK)
+@a_router.delete("/{attachment_id}", status_code=status.HTTP_200_OK)
 async def delete_attachment(
     attachment_id: int,
     session: AsyncSession = Depends(get_session),
