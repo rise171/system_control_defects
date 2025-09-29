@@ -7,48 +7,36 @@ from app.schemas.user import UserCreate, UserGetting, LoginRequest
 from app.core.security import create_jwt_token
 from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from datetime import timedelta
+from sqlalchemy.future import select
+from app.models.user import User
 
 class AuthService:
+    @staticmethod
+    async def register_user(user_data: UserCreate, session: AsyncSession) -> int:
+        user_id = await AuthRepos.register_user(
+            user_data.email, 
+            user_data.name,  
+            user_data.password, 
+            user_data.role,
+            session
+        )
+        if not user_id:
+            return None
+        user = await AuthService.get_user_profile(user_id, session)
+        if not user:
+            raise HTTPException(status_code=404)
+        return user.id
 
     @staticmethod
-    async def register_user(user_data: UserCreate, session: AsyncSession = Depends(get_session)) -> UserGetting:
-        try:
-            user = await AuthRepos.register_user(
-                email=user_data.email,
-                password=user_data.password,
-                name=user_data.name,
-                role=user_data.role,
-                session=session
-            )
-            return UserGetting.model_validate(user)
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to register user: {str(e)}")
+    async def get_user_profile(user_id: int, session: AsyncSession = Depends(get_session)):
+        result = await session.execute(select(User).filter(User.id == user_id))
+        user = result.scalar()
+        return user
 
     @staticmethod
-    async def login_user(login_data: LoginRequest, session: AsyncSession = Depends(get_session)) -> dict:
-        try:
-            user = await AuthRepos.authenticate_user(
-                email=login_data.email,
-                password=login_data.password,
-                session=session
-            )
-            if not user:
-                raise HTTPException(status_code=401, detail="Invalid credentials")
-            
-            # Создаем токен
-            access_token = create_jwt_token(
-                data={"sub": str(user.id), "user_id": user.id, "email": user.email, "role": user.role},
-                expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-            )
-            
-            return {
-                "access_token": access_token,
-                "token_type": "bearer",
-                "user": UserGetting.model_validate(user)
-            }
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to login: {str(e)}")
+    async def login_user(email: str, password: str, session: AsyncSession):
+        # Убрали Depends(get_session) по умолчанию
+        token = await AuthRepos.login_user(email, password, session)
+        if not token:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        return {"access_token": token, "token_type": "bearer"}

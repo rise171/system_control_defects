@@ -13,5 +13,7 @@ class DefectAttachment(Base):
     upload_date = Column(DateTime, default=datetime.utcnow)
 
     defect_id = Column(Integer, ForeignKey("defects.id"), nullable=False)
+    comment_id = Column(Integer, ForeignKey("comments.id"))
 
     defect = relationship("Defect", back_populates="attachments")
+    comment = relationship("Comment", back_populates="attachments")

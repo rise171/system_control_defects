@@ -18,7 +18,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
     name = Column(String, nullable=False)
-    role = Column(Enum(UserRole), default=UserRole.ENGINEER, nullable=False)
+    role = Column(Enum(UserRole), nullable=False)
 
     # Relationships
     managed_projects = relationship("Project", back_populates="manager")

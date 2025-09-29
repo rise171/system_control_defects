@@ -12,7 +12,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=6)
     name: str = Field(..., min_length=1, max_length=100)
-    role: UserRole = UserRole.ENGINEER
+    role: UserRole
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
