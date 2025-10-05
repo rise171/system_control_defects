@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext.jsx';
-import { api } from '../../axios';
+import { useAuth } from '../context/AuthContext';
+import { api } from '../axios';
 import { useNavigate } from 'react-router-dom';
 import './AuthPage.css';
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    username: '',
-    login: '',
+    name: '',
+    email: '',
     password: '',
   });
   const [formErrors, setFormErrors] = useState({
-    username: '',
-    login: '',
+    name: '',
+    email: '',
     password: '',
   });
   const [error, setError] = useState('');
@@ -23,25 +23,25 @@ const AuthPage = () => {
 
   const validateForm = () => {
     const errors = {
-      username: '',
-      login: '',
+      name: '',
+      email: '',
       password: '',
     };
     let isValid = true;
 
-    if (!isLogin && !formData.username.trim()) {
-      errors.username = 'Имя пользователя обязательно';
+    if (!isLogin && !formData.name.trim()) {
+      errors.name = 'Имя пользователя обязательно';
       isValid = false;
-    } else if (!isLogin && formData.username.length < 2) {
-      errors.username = 'Имя пользователя должно быть не менее 2 символов';
+    } else if (!isLogin && formData.name.length < 2) {
+      errors.name = 'Имя пользователя должно быть не менее 2 символов';
       isValid = false;
     }
 
-    if (!formData.login.trim()) {
-      errors.login = 'Логин обязателен';
+    if (!formData.email.trim()) {
+      errors.email = 'Email обязателен';
       isValid = false;
-    } else if (formData.login.length < 3) {
-      errors.login = 'Логин должен быть не менее 3 символов';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = 'Введите корректный email';
       isValid = false;
     }
 
@@ -83,27 +83,23 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
-      const endpoint = isLogin ? '/user/login' : '/user/register';
-      const requestData = isLogin ? {
-        login: formData.login,
-        password: formData.password
-      } : {
-        username: formData.username,
-        login: formData.login,
-        password: formData.password,
-        role: formData.login === 'admin' ? 'admin' : 'user'
-      };
-
-      console.log("Отправляем запрос авторизации:", requestData);
-      const response = await api.post(endpoint, requestData);
-      console.log("Ответ сервера:", response.data);
-
       if (isLogin) {
+        // Логин - используем существующий эндпоинт
+        const requestData = {
+          login: formData.email,
+          password: formData.password
+        };
+
+        console.log("Отправляем запрос авторизации:", requestData);
+        const response = await api.post('/user/login', requestData);
+        console.log("Ответ сервера:", response.data);
+
         if (response.data) {
           const userData = {
             id: response.data.user?.id || response.data.id || response.data.user_id,
-            login: formData.login,
-            role: response.data.role || (formData.login === 'admin' ? 'admin' : 'user')
+            email: formData.email,
+            name: response.data.user?.name || formData.email.split('@')[0],
+            role: response.data.role || 'engineer'
           };
 
           if (!userData.id && response.data.user) {
@@ -118,16 +114,29 @@ const AuthPage = () => {
           
           const token = response.data.access_token || response.data.token;
           authLogin(userData, token);
-          navigate(userData.role === 'admin' ? '/admin' : '/main');
+          navigate(userData.role === 'admin' ? '/admin' : '/user');
         } else {
           throw new Error("Неверный формат ответа от сервера");
         }
       } else {
+        // Регистрация - используем новый формат согласно API
+        const requestData = {
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+          role: 'engineer' // По умолчанию создаем инженера
+        };
+
+        console.log("Отправляем запрос регистрации:", requestData);
+        const response = await api.post('/auth/register', requestData);
+        console.log("Ответ сервера:", response.data);
+
         if (response.data) {
           setIsLogin(true);
           setFormData(prev => ({
             ...prev,
-            username: ''
+            name: '',
+            password: ''
           }));
           setError('Регистрация успешна! Теперь вы можете войти.');
         }
@@ -136,12 +145,37 @@ const AuthPage = () => {
     } catch (err) {
       console.error("Ошибка авторизации:", err);
       if (err.response) {
-        console.log("Ответ с ошибкой:", err.response.data);
+        console.log("Статус ошибки:", err.response.status);
+        console.log("Данные ошибки:", err.response.data);
+        
+        // Более детальная обработка ошибок
+        if (err.response.status === 400) {
+          const errorData = err.response.data;
+          if (errorData.detail) {
+            if (typeof errorData.detail === 'string') {
+              setError(errorData.detail);
+            } else if (Array.isArray(errorData.detail)) {
+              setError(errorData.detail.map(err => err.msg || err.message).join(', '));
+            } else {
+              setError('Неверные данные. Проверьте введенную информацию.');
+            }
+          } else if (errorData.message) {
+            setError(errorData.message);
+          } else {
+            setError('Неверные данные. Проверьте введенную информацию.');
+          }
+        } else if (err.response.status === 409) {
+          setError('Пользователь с таким email уже существует');
+        } else if (err.response.status === 401) {
+          setError('Неверный email или пароль');
+        } else if (err.response.status === 500) {
+          setError('Ошибка сервера. Попробуйте позже.');
+        } else {
+          setError(err.response?.data?.detail || err.message || "Произошла ошибка");
+        }
+      } else {
+        setError("Ошибка сети. Проверьте подключение к интернету.");
       }
-      const message = err.response?.data?.detail ||
-        err.message ||
-        "Ошибка авторизации. Проверьте введенные данные.";
-      setError(typeof message === "string" ? message : message.join("\n"));
     } finally {
       setIsLoading(false);
     }
@@ -158,35 +192,34 @@ const AuthPage = () => {
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <div className="form-group">
-              <label htmlFor="username">Имя пользователя</label>
+              <label htmlFor="name">Имя пользователя</label>
               <input
                 type="text"
-                id="username"
-                name="username"
-                value={formData.username}
+                id="name"
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
-                className={formErrors.username ? 'error' : ''}
+                className={formErrors.name ? 'error' : ''}
                 disabled={isLoading}
+                placeholder="Введите ваше имя"
               />
-              {formErrors.username && <span className="error-text">{formErrors.username}</span>}
+              {formErrors.name && <span className="error-text">{formErrors.name}</span>}
             </div>
           )}
 
           <div className="form-group">
-            <label htmlFor="login">Логин</label>
+            <label htmlFor="email">Email</label>
             <input
-              type="text"
-              id="login"
-              name="login"
-              value={formData.login}
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
               onChange={handleInputChange}
-              className={formErrors.login ? 'error' : ''}
+              className={formErrors.email ? 'error' : ''}
               disabled={isLoading}
+              placeholder="user@example.com"
             />
-            {formErrors.login && <span className="error-text">{formErrors.login}</span>}
-            {!isLogin && formData.login === 'admin' && (
-              <small className="role-hint">Будет создан аккаунт администратора</small>
-            )}
+            {formErrors.email && <span className="error-text">{formErrors.email}</span>}
           </div>
 
           <div className="form-group">
@@ -199,6 +232,7 @@ const AuthPage = () => {
               onChange={handleInputChange}
               className={formErrors.password ? 'error' : ''}
               disabled={isLoading}
+              placeholder="Не менее 6 символов"
             />
             {formErrors.password && <span className="error-text">{formErrors.password}</span>}
           </div>
@@ -222,13 +256,13 @@ const AuthPage = () => {
             onClick={() => {
               setIsLogin(!isLogin);
               setFormData({
-                username: '',
-                login: '',
+                name: '',
+                email: '',
                 password: ''
               });
               setFormErrors({
-                username: '',
-                login: '',
+                name: '',
+                email: '',
                 password: ''
               });
               setError('');
@@ -243,4 +277,4 @@ const AuthPage = () => {
   );
 };
 
-export default AuthPage; 
+export default AuthPage;

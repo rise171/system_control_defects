@@ -1,35 +1,78 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import AuthPage from './pages/AuthPage';
+import './App.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+// Компонент для редиректа
+const RootRedirect = () => {
+  const { isAuthenticated } = useAuth();
+  
+  if (isAuthenticated()) {
+    return <Navigate to="/user" replace />;
+  }
+  
+  return <Navigate to="/login" replace />;
+};
+
+// Основной компонент приложения
+const AppContent = () => {
+  const { isAuthenticated } = useAuth();
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="app">
+      <main className="main-content">
+        <Routes>
+          {/* Корневой маршрут с редиректом */}
+          <Route path="/" element={<RootRedirect />} />
+          
+          {/* Страница аутентификации */}
+          <Route 
+            path="/login" 
+            element={
+              isAuthenticated() ? <Navigate to="/user" replace /> : <AuthPage />
+            } 
+          />
+          
+          {/* Защищенный маршрут (пример) */}
+          <Route 
+            path="/user" 
+            element={
+              isAuthenticated() ? (
+                <div className="user-page">
+                  <h1>Добро пожаловать!</h1>
+                  <p>Вы успешно вошли в систему</p>
+                  <button 
+                    onClick={() => {
+                      localStorage.removeItem('authToken');
+                      window.location.reload();
+                    }}
+                  >
+                    Выйти
+                  </button>
+                </div>
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          
+          {/* Маршрут для несуществующих страниц */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+    </div>
+  );
+};
 
-export default App
+const App = () => {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
+  );
+};
+
+export default App;
